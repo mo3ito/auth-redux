@@ -51,7 +51,27 @@ const userLogin = async (req, res) => {
   }
 };
 
+const getCurrentUserInfos = async (req, res) => {
+  const id = req.headers.authorization;
+
+  try {
+    if (!id) {
+      return res.status(400).json({
+        message: "هیچ توکنی ارسال نکردید",
+      });
+    }
+
+    const user = await UsersModel.findById(id);
+
+    return res.status(200).json(user);
+  } catch (error) {
+    console.error("Error:", error.message);
+    return res.status(500).json({ message: "خطایی رخ داد" });
+  }
+};
+
 module.exports = {
   userRegistration,
   userLogin,
+  getCurrentUserInfos
 };
