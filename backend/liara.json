@@ -1,0 +1,8 @@
+{
+  "disks": [
+    {
+      "mountTo": "public",
+      "name": "images-disk"
+    }
+  ]
+}
