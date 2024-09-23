@@ -16,6 +16,7 @@ const userRegistration = async (req, res) => {
 
     const newUser = new UsersModel(userInfos);
     await newUser.save();
+console.log(newUser);
 
     const token = await createToken({ infos: newUser });
 
@@ -42,9 +43,11 @@ const userLogin = async (req, res) => {
       return res.status(400).json({ message: "رمز عبور صحیح نمی باشد" });
     }
 
+    console.log(user);
+    
     const token = await createToken({ user });
 
-    return res.status(200).json({ token });
+    return res.status(200).json({ infos: user, token });
   } catch (error) {
     console.error("Error:", error.message);
     return res.status(500).json({ message: "خطایی رخ داد" });
@@ -57,7 +60,7 @@ const getCurrentUserInfos = async (req, res) => {
   try {
     if (!id) {
       return res.status(400).json({
-        message: "هیچ توکنی ارسال نکردید",
+        message: "هیچ  ارسال نکردید",
       });
     }
 
@@ -73,5 +76,5 @@ const getCurrentUserInfos = async (req, res) => {
 module.exports = {
   userRegistration,
   userLogin,
-  getCurrentUserInfos
+  getCurrentUserInfos,
 };
