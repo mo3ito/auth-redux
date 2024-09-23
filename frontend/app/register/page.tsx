@@ -4,7 +4,9 @@ import RegisterSchema from "@/schema/RegisterSchema";
 import { useDispatch, useSelector } from "react-redux";
 import { registerUser } from "@/redux/slice/UserSlice";
 import { RootState, AppDispatch } from "@/redux/store";
+import { useRouter } from "next/navigation";
 export default function Home() {
+  const router = useRouter()
   const dispatch = useDispatch<AppDispatch>();
   const { error, loading , user } = useSelector((state: RootState) => state.user);
   const {

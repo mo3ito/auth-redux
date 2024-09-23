@@ -1,3 +1,4 @@
+import getDataAuth from "@/services/getDataAuth";
 import sendData from "@/services/sendData";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { jwtDecode } from "jwt-decode";
@@ -25,29 +26,65 @@ export const loginUser = createAsyncThunk(
         "http://localhost:4000/users/login",
         userInfos
       );
+
       localStorage.setItem("user", response.data.token);
       return response.data;
-    } catch (error : any) {
+    } catch (error: any) {
       const message = error.response?.data?.message || "خطا در ورود";
-      toast.error(message);
-      return rejectWithValue(message); 
+
+      // نمایش پیام خطا از backend
+      if (error.response?.status === 400) {
+        toast.error(message); // نمایش پیام خطا
+      } else {
+        toast.error("خطا در ورود"); // پیام عمومی برای سایر خطاها
+      }
+
+      return rejectWithValue(message);
     }
   }
-)
+);
+export const getCurrentUser = createAsyncThunk(
+  "auth/get-current",
+  async (_, thunAPI) => {
+    try {
+      const token = (await localStorage.getItem("user")) ?? "";
+      console.log("Token:", token);
+      if (!token) {
+        throw new Error("توکنی دریافت نشد");
+      }
+      const infos: Infos = await jwtDecode(token);
+      const userId = infos.user._id;
+      console.log(userId);
 
-export const getCurrentUser = createAsyncThunk('auth/get-current', async (_ , thunkApi)=>{
-
-  try {
-    const token = await localStorage.getItem("user") ?? ""
-  } catch (error) {
-    
+      const response = await getDataAuth(
+        "http://localhost:4000/users/get-curent-user-infos",
+        userId
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error decoding token:", error);
+      throw error;
+    }
   }
+);
 
-})
+export const logoutUser = createAsyncThunk("user/logout", () => {
+  localStorage.removeItem("user");
+});
+
+type Infos = {
+  user: UserInfosType;
+};
+
+type UserInfosType = {
+  _id: string;
+  email: string;
+  password: string;
+};
 
 type InitialStateType = {
   loading: boolean;
-  user: null | object;
+  user: null | UserInfosType;
   error: null | string;
 };
 const initialState: InitialStateType = {
@@ -87,6 +124,24 @@ const userSlice = createSlice({
         (state.loading = false),
           (state.error = action.error.message || "دسترسی صادر نشد"),
           (state.user = null);
+      })
+      .addCase(getCurrentUser.pending, (state) => {
+        (state.loading = true), (state.error = null), (state.user = null);
+      })
+      .addCase(getCurrentUser.fulfilled, (state, action) => {
+        console.log(action);
+
+        (state.loading = false),
+          (state.error = null),
+          (state.user = action.payload);
+      })
+      .addCase(getCurrentUser.rejected, (state, action) => {
+        (state.loading = false),
+          (state.error = action.error.message || "دسترسی صادر نشد"),
+          (state.user = null);
+      })
+      .addCase(logoutUser.fulfilled, (state) => {
+        (state.loading = false), (state.user = null);
       });
   },
   reducers: {},

@@ -1,10 +1,10 @@
 import axios, { AxiosError } from "axios";
 
-const getDataAuth = async (url: string, token: string) => {
+const getDataAuth = async (url: string, id: string) => {
   try {
     const response = await axios.get(url, {
       headers: {
-        Authorization: `Token ${token}`,
+        Authorization: id,
       },
     });
 
