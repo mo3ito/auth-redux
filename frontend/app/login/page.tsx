@@ -2,7 +2,7 @@
 import { useFormik } from "formik";
 import LoginSchema from "@/schema/LoginSchema";
 import { useDispatch, useSelector } from "react-redux";
-import { registerUser } from "@/redux/slice/UserSlice";
+import {  loginUser } from "@/redux/slice/UserSlice";
 import { RootState, AppDispatch } from "@/redux/store";
 export default function Home() {
   const dispatch = useDispatch<AppDispatch>();
@@ -20,7 +20,6 @@ export default function Home() {
     initialValues: {
       email: "",
       password: "",
-      repeatPassword: "",
     },
     onSubmit: async (values) => {
       console.log(values);
@@ -30,7 +29,7 @@ export default function Home() {
       };
 
       try {
-        const infos = await dispatch(registerUser(userInfos));
+        const infos = await dispatch(loginUser(userInfos));
 
         console.log("infos", infos);
       } catch (error) {
