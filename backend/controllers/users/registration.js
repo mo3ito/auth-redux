@@ -14,6 +14,14 @@ const userRegistration = async (req, res) => {
       password,
     };
 
+    const isUserRegisterBefore = await UsersModel.findOne({email})
+
+    if(isUserRegisterBefore){
+      return res.status(400).json({
+        message: "کاربری با این ایمیل وجود دارد"
+      })
+    }
+
     const newUser = new UsersModel(userInfos);
     await newUser.save();
 console.log(newUser);

@@ -1,4 +1,3 @@
-import getDataAuth from "@/services/getDataAuth";
 import sendData from "@/services/sendData";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { jwtDecode } from "jwt-decode";
@@ -6,17 +5,29 @@ import { toast } from "react-toastify";
 
 export const registerUser = createAsyncThunk(
   "user/register",
-  async (userInfos: object) => {
-    const response = await sendData(
-      "http://localhost:4000/users/register",
-      userInfos
-    );
+  async (userInfos: object, { rejectWithValue }) => {
+    try {
+      const response = await sendData(
+        "http://localhost:4000/users/register",
+        userInfos
+      );
 
-    console.log(response);
+      console.log(response);
 
-    localStorage.setItem("user", response?.data?.token);
+      localStorage.setItem("user", response?.data?.token);
 
-    return response.data;
+      return response.data;
+    } catch (error: any) {
+      const message = error.response?.data?.message;
+
+      if (error.response?.status === 400) {
+        toast.error(message);
+      } else {
+        toast.error("خطا در ثبت‌نام");
+      }
+
+      return rejectWithValue(message);
+    }
   }
 );
 
@@ -93,8 +104,6 @@ const userSlice = createSlice({
         (state.loading = true), (state.error = null), (state.user = null);
       })
       .addCase(registerUser.fulfilled, (state, action) => {
-        console.log(action.payload);
-
         (state.loading = false),
           (state.error = null),
           (state.user = action.payload);
@@ -119,8 +128,6 @@ const userSlice = createSlice({
           (state.user = null);
       })
       .addCase(getCurrentUser.fulfilled, (state, action) => {
-        console.log(action);
-
         (state.loading = false),
           (state.error = null),
           (state.user = action.payload);
