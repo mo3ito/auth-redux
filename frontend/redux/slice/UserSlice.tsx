@@ -113,7 +113,6 @@ const userSlice = createSlice({
           (state.error = action.error.message || "دسترسی صادر نشد"),
           (state.user = null);
       })
-
       .addCase(loginUser.pending, (state) => {
         (state.loading = true), (state.error = null), (state.user = null);
       })
