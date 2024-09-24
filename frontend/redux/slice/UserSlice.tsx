@@ -12,7 +12,9 @@ export const registerUser = createAsyncThunk(
       userInfos
     );
 
-    localStorage.setItem("user", response.data.token);
+    console.log(response);
+
+    localStorage.setItem("user", response?.data?.token);
 
     return response.data;
   }
@@ -32,48 +34,37 @@ export const loginUser = createAsyncThunk(
     } catch (error: any) {
       const message = error.response?.data?.message || "خطا در ورود";
 
-      // نمایش پیام خطا از backend
       if (error.response?.status === 400) {
-        toast.error(message); // نمایش پیام خطا
+        toast.error(message);
       } else {
-        toast.error("خطا در ورود"); // پیام عمومی برای سایر خطاها
+        toast.error("خطا در ورود");
       }
 
       return rejectWithValue(message);
     }
   }
 );
-export const getCurrentUser = createAsyncThunk(
-  "auth/get-current",
-  async (_, thunAPI) => {
-    try {
-      const token = (await localStorage.getItem("user")) ?? "";
-      console.log("Token:", token);
-      if (!token) {
-        throw new Error("توکنی دریافت نشد");
-      }
-      const infos: Infos = await jwtDecode(token);
-      const userId = infos.user._id;
-      console.log(userId);
-
-      const response = await getDataAuth(
-        "http://localhost:4000/users/get-curent-user-infos",
-        userId
-      );
-      return response.data;
-    } catch (error) {
-      console.error("Error decoding token:", error);
-      throw error;
+export const getCurrentUser = createAsyncThunk("auth/get-current", async () => {
+  try {
+    const token = (await localStorage.getItem("user")) ?? "";
+    console.log("Token:", token);
+    if (!token) {
+      throw new Error("توکنی دریافت نشد");
     }
+    const userInfos: Infos = await jwtDecode(token);
+    return userInfos.infos;
+  } catch (error) {
+    console.error("Error decoding token:", error);
+    throw error;
   }
-);
+});
 
 export const logoutUser = createAsyncThunk("user/logout", () => {
   localStorage.removeItem("user");
 });
 
 type Infos = {
-  user: UserInfosType;
+  infos: UserInfosType;
 };
 
 type UserInfosType = {
@@ -102,6 +93,8 @@ const userSlice = createSlice({
         (state.loading = true), (state.error = null), (state.user = null);
       })
       .addCase(registerUser.fulfilled, (state, action) => {
+        console.log(action.payload);
+
         (state.loading = false),
           (state.error = null),
           (state.user = action.payload);
@@ -125,20 +118,12 @@ const userSlice = createSlice({
           (state.error = action.error.message || "دسترسی صادر نشد"),
           (state.user = null);
       })
-      .addCase(getCurrentUser.pending, (state) => {
-        (state.loading = true), (state.error = null), (state.user = null);
-      })
       .addCase(getCurrentUser.fulfilled, (state, action) => {
         console.log(action);
 
         (state.loading = false),
           (state.error = null),
           (state.user = action.payload);
-      })
-      .addCase(getCurrentUser.rejected, (state, action) => {
-        (state.loading = false),
-          (state.error = action.error.message || "دسترسی صادر نشد"),
-          (state.user = null);
       })
       .addCase(logoutUser.fulfilled, (state) => {
         (state.loading = false), (state.user = null);

@@ -6,9 +6,9 @@ import { registerUser } from "@/redux/slice/UserSlice";
 import { RootState, AppDispatch } from "@/redux/store";
 import { useRouter } from "next/navigation";
 export default function Home() {
-  const router = useRouter()
+  const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
-  const { error, loading , user } = useSelector((state: RootState) => state.user);
+  const { loading, user } = useSelector((state: RootState) => state.user);
   const {
     touched,
     handleSubmit,
@@ -30,9 +30,8 @@ export default function Home() {
       };
 
       try {
-        const infos = await dispatch(registerUser(userInfos));
-        
-        console.log("infos", infos);
+        await dispatch(registerUser(userInfos));
+        router.push("/");
       } catch (error) {
         console.log(error);
       }
@@ -41,10 +40,10 @@ export default function Home() {
   });
 
   console.log(user);
-  
+
   return (
     <main className="w-full h-screen flex flex-col items-center justify-center ">
-        <h1 className="text-xl py-3">ثبت‌نام</h1>
+      <h1 className="text-xl py-3">ثبت‌نام</h1>
       <form
         onSubmit={handleSubmit}
         className="w-[350px] h-max bg-blue-200 border border-blue-300 p-3 rounded-lg"
@@ -84,7 +83,6 @@ export default function Home() {
         >
           {loading ? "در حال بارگیری" : "تایید"}
         </button>
-        {error && <div>{error}</div>}
       </form>
     </main>
   );

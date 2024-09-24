@@ -45,7 +45,7 @@ const userLogin = async (req, res) => {
 
     console.log(user);
     
-    const token = await createToken({ user });
+    const token = await createToken({ infos : user });
 
     return res.status(200).json({ infos: user, token });
   } catch (error) {

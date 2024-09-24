@@ -2,11 +2,11 @@
 import { useFormik } from "formik";
 import LoginSchema from "@/schema/LoginSchema";
 import { useDispatch, useSelector } from "react-redux";
-import {  loginUser } from "@/redux/slice/UserSlice";
+import { loginUser } from "@/redux/slice/UserSlice";
 import { RootState, AppDispatch } from "@/redux/store";
 import { useRouter } from "next/navigation";
 export default function Home() {
-  const router = useRouter()
+  const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
   const { error, loading, user } = useSelector(
     (state: RootState) => state.user
@@ -31,8 +31,8 @@ export default function Home() {
       };
 
       try {
-        const infos = await dispatch(loginUser(userInfos));
-        console.log("infos", infos);
+        await dispatch(loginUser(userInfos));
+        router.push("/");
       } catch (error) {
         console.log(error);
       }
