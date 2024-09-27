@@ -8,9 +8,7 @@ import { useRouter } from "next/navigation";
 export default function Home() {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
-  const { error, loading, user } = useSelector(
-    (state: RootState) => state.user
-  );
+  const { loading } = useSelector((state: RootState) => state.user);
   const {
     touched,
     handleSubmit,
@@ -39,8 +37,6 @@ export default function Home() {
     },
     validationSchema: LoginSchema,
   });
-
-  console.log(user);
 
   return (
     <main className="w-full h-screen flex flex-col items-center justify-center ">
