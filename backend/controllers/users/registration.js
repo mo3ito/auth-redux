@@ -5,29 +5,26 @@ require("dotenv").config();
 const userRegistration = async (req, res) => {
   const { email, password } = req.body;
 
-  console.log(email);
-  console.log(password);
-
   try {
+    const lowerCaseEmail = email.toLowerCase();
     const userInfos = {
-      email,
+      email: lowerCaseEmail,
       password,
     };
 
-    const isUserRegisterBefore = await UsersModel.findOne({email})
+    const isUserRegisterBefore = await UsersModel.findOne({
+      email: lowerCaseEmail,
+    });
 
-    if(isUserRegisterBefore){
+    if (isUserRegisterBefore) {
       return res.status(400).json({
-        message: "کاربری با این ایمیل وجود دارد"
-      })
+        message: "کاربری با این ایمیل وجود دارد",
+      });
     }
 
     const newUser = new UsersModel(userInfos);
     await newUser.save();
-console.log(newUser);
-
     const token = await createToken({ infos: newUser });
-
     res.status(200).json({ infos: newUser, token });
   } catch (error) {
     console.error("error:", error.message);
@@ -41,7 +38,8 @@ const userLogin = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const user = await UsersModel.findOne({ email });
+    const lowerCaseEmail = email.toLowerCase();
+    const user = await UsersModel.findOne({ email: lowerCaseEmail });
 
     if (!user) {
       return res.status(400).json({ message: "کاربری با این ایمیل یافت نشد" });
@@ -51,9 +49,7 @@ const userLogin = async (req, res) => {
       return res.status(400).json({ message: "رمز عبور صحیح نمی باشد" });
     }
 
-    console.log(user);
-    
-    const token = await createToken({ infos : user });
+    const token = await createToken({ infos: user });
 
     return res.status(200).json({ infos: user, token });
   } catch (error) {
